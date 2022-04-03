@@ -4,8 +4,8 @@ import subprocess as sp
 import sys
 
 #!pip install graphlib
-def install(graphlib):
-    sp.check_call([sys.executable, "-m", "pip", "install", graphlib])
+#def install(graphlib):
+#    sp.check_call([sys.executable, "-m", "pip", "install", graphlib])
 
 class Vertice(object):
     def __init__(self, pos, arestas, custo):
@@ -41,7 +41,7 @@ class Vertice(object):
         return self.posicaoAnterior
 
     def getPosicao(self):
-        return self.posicao
+        return self.pos
 
     def __repr__(self):
         return str(self)
@@ -53,15 +53,16 @@ class Vertice(object):
 class Graph(object):
     def __init__(self, matriz, shape):
         self.vertices = []
+        self.coluna = matriz.shape[1]
         for i in range(shape[0]):
-            for j in range(shape[0]):
+            for j in range(shape[1]):
                 arestas = []
-                if i+1 <= range(shape[0])[-1]:
-                    arestas.append([i+1, j]) # Sul
                 if i-1 >= 0:
                     arestas.append([i-1, j]) # Norte
-                if j+1 <= range(shape[0])[-1]:
+                if j+1 <= range(shape[1])[-1]:
                     arestas.append([i, j+1]) # Leste
+                if i+1 <= range(shape[0])[-1]:
+                    arestas.append([i+1, j]) # Sul
                 if j-1 >= 0:
                     arestas.append([i, j-1]) # Oeste
                 self.vertices.append(Vertice([i, j], arestas, matriz[i][j]))
@@ -73,19 +74,26 @@ class Graph(object):
         return str(self)
 
     def setCustoTotal(self, posicao, custo):
-        self.vertices[posicao[0]][posicao[1]].setcustoTotal(custo)
+        self.vertices[posicao[0] + (posicao[1] * self.coluna)].setCustoTotal(custo)
 
-    def getNo(self, posicao):
-        return self.vertices[posicao[0]][posicao[1]]
+    def setPosicaoAnterior(self, posicao, anterior):
+        self.vertices[posicao[0] + (posicao[1] * self.coluna)].setPosicaoAnterior(anterior)
+
+    def getArestas(self, posicao):
+        return self.vertices[posicao[0] + (posicao[1] * self.coluna)].getArestas()
+
+    def getCustoTotal(self, posicao):
+        if posicao == 0:
+            return 0
+        return self.vertices[posicao[0] + (posicao[1] * self.coluna)].getCustoTotal()
 
     def getCusto(self, posicao):
-        return self.vertices[posicao[0]][posicao[1]].getCusto()
+        return self.vertices[posicao[0] + (posicao[1] * self.coluna)].getCusto()
 
     def getPosicaoAnterior(self, posicao):
-        return self.vertices[posicao[0]][posicao[1]].getPosicaoAnterior()
-
-    def getNoAnterior(self, posicao):
-        return self.getNo(self.getPosicaoAnterior)
+        if posicao == 0:
+            return 0
+        return self.vertices[posicao[0] + (posicao[1] * self.coluna)].getPosicaoAnterior()
 
 #mat = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
 #mat.shape

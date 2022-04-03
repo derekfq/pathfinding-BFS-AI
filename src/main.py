@@ -12,6 +12,7 @@ BFS(dequeue())
 """
 def preparacaoBFS():
     fila.put(inicial) # @FRONT -> mudar a cor para posição inicial
+    grafo.setPosicaoAnterior(inicial, 0)
     BFS(fila.get())
 
 """
@@ -37,34 +38,30 @@ retorna
 def BFS(posAtual):
     if posAtual == queue.Empty:
         return
-    grafo[posAtual[0]][posAtual[1]].setCustoTotal(
-        grafo[posAtual[0]][posAtual[1]]
-            .getNoAnterior()
-            .getCustoTotal()
-        +
-        grafo[posAtual[0]][posAtual[1]]
-            .getCusto()
-    )
+    grafo.setCustoTotal(posAtual, grafo.getCustoTotal(grafo.getPosicaoAnterior(posAtual)) + grafo.getCusto(posAtual))
     if posAtual == final:
-        exibeCaminho(grafo[posAtual[0]][posAtual[1]]) # Ou anterior?? Critério do FRONT
-        print(grafo[posAtual[0]][posAtual[1]].getCustoTotal())
+        print("Caminho encontrado (destino->início):")
+        #print(grafo.__dict__)
+        exibeCaminho(posAtual)
+        print("\nCusto total:", grafo.getCustoTotal(posAtual))
         return
-    for vertice in grafo[posAtual[0]][posAtual[1]].getArestas():
-        if grafo[vertice[0]][vertice[1]].getNoAnterior() == None:
-            grafo[vertice[0]][vertice[1]].setNoAnterior(grafo[posAtual[0]][posAtual[1]])
+    for vertice in grafo.getArestas(posAtual):
+        if grafo.getPosicaoAnterior(vertice) == None:
+            grafo.setPosicaoAnterior(vertice, posAtual)
             fila.put(vertice)
     BFS(fila.get(block=False))
     #return
 
 # @FRONT
 # Função que exibe o caminho encontrado
-def exibeCaminho(no):
-    if no == None:
+def exibeCaminho(posicao):
+    if posicao == 0:
         return
-    print("Caminho encontrado:")
+    print(posicao, end="")
+    ##caminho.append(posicao)
     # Muda a cor da célula, exibindo o caminho
     # Recursão chamando noAnterior
-    exibeCaminho(no.getNoAnterior())
+    exibeCaminho(grafo.getPosicaoAnterior(posicao))
 
 # MAIN
 path = OpenFile()
@@ -75,12 +72,19 @@ if path != '':
     final = [matriz[1][0], matriz[1][1]]
     mapa = np.delete(matriz,[0,1],0)
     rows, columns = mapa.shape
-    if CoordTest(inicial, rows, columns) == True and CoordTest(final,rows,columns) == True and MapCheck(mapa) == True:
+    if CoordTest(inicial, rows, columns) == True and CoordTest(final,rows,columns) == True and MapCheck(mapa) == True and inicial != final:
         #print("\npos inicial:\n ", inicial)
         #print("\npos final:\n ", final)
         #print("\nmapa:\n ", mapa)
         fila = queue.Queue() # Fila para BFS
-        print(mapa,"\n\n", inicial, final)
+        #print(mapa,"\n\n", inicial, final)
         grafo = Graph(mapa, mapa.shape) # Grafo modelo matriz de adjacência
         #print(grafo.__dict__)
-        #preparacaoBFS()
+        caminho = []
+        preparacaoBFS()
+        ##caminho.reverse()
+        ##for passo in caminho:
+        ##    print(passo, end="")
+        #print(grafo.vertices[100].getPosicao())
+        #print(mapa.shape)
+        #print(grafo.getCusto(inicial))

@@ -1,4 +1,15 @@
 # Pathfinding BFS AI
+![GitHub Repository Size](https://img.shields.io/github/repo-size/h-ssiqueira/pathfinding-BFS-AI?label=Repository%20Size&style=for-the-badge)
+
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![MAC](https://img.shields.io/badge/MAC-000000?style=for-the-badge&logo=macos&logoColor=white)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
+
+![VSCode](https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+
+## Descrição
 
 Este projeto consiste em um sistema de navegação automática de um robô utilizando o algoritmo de busca em largura.
 
@@ -8,7 +19,7 @@ A movimentação da busca é realizada somente na vertical e horizontal, seguind
 
 ![FuncionamentoDoAlgoritmo](imgs/algoritmo.jpg)
 
-![Exemplo](/imgs/mapaExemplo.jpg)
+## Mapas
 
 Tipo | Cor | Valor (CSV) | Custo
 :---: | :---: | :---: | :---:
@@ -16,3 +27,19 @@ Sólido e plano | Verde | 1 | 1
 Montanhoso | Marrom | 2 | 5
 Pântano | Azul | 3 | 10
 Fogo | Vermelho | 4 | 15
+
+### Mapa 1
+![Exemplo1](/imgs/mapa1.jpg)
+
+### Mapa 2
+![Exemplo2](/imgs/mapa2.jpg)
+
+### Mapa 3
+![Exemplo3](/imgs/mapa3.jpg)
+
+### Mapa 4
+![Exemplo4](/imgs/mapa4.jpg)
+
+## Resultados
+
+Para calcular o custo total, o programa realiza a soma de custos de toda a trajetória, ou seja, o custo do início, os custos pertencentes à trajetória do caminho encontrado pelo algoritmo e também o custo da posição final.
