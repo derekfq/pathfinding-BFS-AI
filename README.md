@@ -32,13 +32,13 @@ Fogo | Vermelho | 4 | 15
 ![Exemplo1](/imgs/mapa1.jpg)
 
 ### Mapa 2
-![Exemplo2](/imgs/mapa2.jpg)
+![Exemplo2](/imgs/mapa2.JPG)
 
 ### Mapa 3
-![Exemplo3](/imgs/mapa3.jpg)
+![Exemplo3](/imgs/mapa3.JPG)
 
 ### Mapa 4
-![Exemplo4](/imgs/mapa4.jpg)
+![Exemplo4](/imgs/mapa4.JPG)
 
 ## Resultados
 
