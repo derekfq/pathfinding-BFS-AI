@@ -74,26 +74,26 @@ class Graph(object):
         return str(self)
 
     def setCustoTotal(self, posicao, custo):
-        self.vertices[posicao[0] + (posicao[1] * self.coluna)].setCustoTotal(custo)
+        self.vertices[posicao[0] * self.coluna + posicao[1]].setCustoTotal(custo)
 
     def setPosicaoAnterior(self, posicao, anterior):
-        self.vertices[posicao[0] + (posicao[1] * self.coluna)].setPosicaoAnterior(anterior)
+        self.vertices[posicao[0] * self.coluna + posicao[1]].setPosicaoAnterior(anterior)
 
     def getArestas(self, posicao):
-        return self.vertices[posicao[0] + (posicao[1] * self.coluna)].getArestas()
+        return self.vertices[posicao[0] * self.coluna + posicao[1]].getArestas()
 
     def getCustoTotal(self, posicao):
         if posicao == 0:
             return 0
-        return self.vertices[posicao[0] + (posicao[1] * self.coluna)].getCustoTotal()
+        return self.vertices[posicao[0] * self.coluna + posicao[1]].getCustoTotal()
 
     def getCusto(self, posicao):
-        return self.vertices[posicao[0] + (posicao[1] * self.coluna)].getCusto()
+        return self.vertices[posicao[0] * self.coluna + posicao[1]].getCusto()
 
     def getPosicaoAnterior(self, posicao):
         if posicao == 0:
             return 0
-        return self.vertices[posicao[0] + (posicao[1] * self.coluna)].getPosicaoAnterior()
+        return self.vertices[posicao[0] * self.coluna + posicao[1]].getPosicaoAnterior()
 
 #mat = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
 #mat.shape

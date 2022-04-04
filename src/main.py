@@ -80,7 +80,6 @@ if path != '':
         #print(mapa,"\n\n", inicial, final)
         grafo = Graph(mapa, mapa.shape) # Grafo modelo matriz de adjacência
         #print(grafo.__dict__)
-        caminho = []
         preparacaoBFS()
         ##caminho.reverse()
         ##for passo in caminho:
