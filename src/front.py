@@ -20,6 +20,8 @@ YELLOW = (255, 255, 0) #visitado
 PURPLE = (128, 0, 128) #caminho mais curto
 ORANGE = (255, 165 ,0) #começo
 TURQUOISE = (64, 224, 208) #fim
+PINK = (255, 203, 219) #fila
+
 
 # Posição dentro da matriz do front-end
 class Spot:
@@ -61,7 +63,7 @@ class Spot:
         return self.pos
 
     def is_closed(self): #já passou pelo nó
-        return self.color == RED
+        return self.color == YELLOW
 
     def is_open(self): #esta vendo esse/esses nós agora
         return self.color == GREEN
@@ -72,11 +74,17 @@ class Spot:
     def is_end(self):
         return self.color == TURQUOISE
 
+    def is_fila(self):
+        return self.color == PINK
+
+    def make_fila(self):
+        self.color = PINK
+
     def make_start(self):
         self.color = ORANGE
 
     def make_closed(self):
-        self.color = RED
+        self.color = YELLOW
 
     def make_open(self):
         self.color = GREEN
@@ -228,13 +236,16 @@ def BFS(posAtual,ini,fim,grid):
             grid[aux1][aux2].make_closed() # posição que foi visitada
         if grafo.getPosicaoAnterior(vertice) == None:
             grafo.setPosicaoAnterior(vertice, posAtual)
+            aux3 = vertice[0]
+            aux4 = vertice[1]
+            grid[aux3][aux4].make_fila()
             fila.put(vertice)
     BFS(fila.get(block=False),ini,fim,grid)
 
 def preparacaoBFS(ini,fim,grid):
-    fila.put(ini) # @FRONT -> mudar a cor para posição inicial
-    grafo.setPosicaoAnterior(ini, 0)
-    BFS(fila.get(),ini,fim,grid)
+    fila.put(ini) #Coloca dentro da fila a posição inicial
+    grafo.setPosicaoAnterior(ini, 0) # coloca a posição anterior como 0, identificando que é a posição inicial
+    BFS(fila.get(),ini,fim,grid) # inicia a busca em largura
 
 def exibeCaminho(posicao,grid):
     if posicao == 0:
@@ -242,7 +253,7 @@ def exibeCaminho(posicao,grid):
 
     aux1 = posicao[0]
     aux2 = posicao[1]
-    grid[aux1][aux2].make_path()
+    grid[aux1][aux2].make_path() # exibe o caminho no front
     ##print(posicao, end="")
     ##caminho.append(posicao)
     # Muda a cor da célula, exibindo o caminho
@@ -250,8 +261,7 @@ def exibeCaminho(posicao,grid):
 
     exibeCaminho(grafo.getPosicaoAnterior(posicao),grid)
 
-
-
+# MAIN
 path = OpenFile()
 if path != '':
     #print("path: \n", path)
@@ -266,13 +276,12 @@ if path != '':
     ROWS, COLS = mapa.shape
     grid = make_grid(ROWS, COLS, WIDTH, HEIGTH, mapa)
     start = grid[aux1][aux2]
-    end = grid[aux3][aux4]        
+    end = grid[aux3][aux4]
+    # verifica se a matriz contém uma posição final, inicial, e se a matriz não contém uma posição que está faltando
     if CoordTest(ini, ROWS, COLS) == True and CoordTest(fin,ROWS,COLS) == True and MapCheck(mapa) == True and ini != fin:            
         fila = queue.Queue()
         grafo = Graph(mapa, mapa.shape)
-        #start = grid[0][0] #colocar o que jao pegou
         start.make_start()
-        #end = grid[0][1] #colocar o que jao pegou
         end.make_end()
         run = True
         while run:
@@ -283,10 +292,6 @@ if path != '':
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE and start and end:
                         preparacaoBFS(ini,fin,grid)
-                    if event.key == pygame.K_c:
-                        start = None
-                        end = None
-                        grid = make_grid(ROWS, COLS, WIDTH, HEIGTH,matriz)
         pygame.quit()
 
 

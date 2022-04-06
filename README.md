@@ -43,3 +43,8 @@ Fogo | Vermelho | 4 | 15
 ## Resultados
 
 Para calcular o custo total, o programa realiza a soma de custos de toda a trajetória, ou seja, o custo do início, os custos pertencentes à trajetória do caminho encontrado pelo algoritmo e também o custo da posição final.
+
+## Exemplo de execução
+![funcionamento](imgs/funcionamento.png)
+
+Com custo 12. 
