@@ -1,3 +1,4 @@
+
 from file import *
 from grafo import *
 from front import *
@@ -11,10 +12,11 @@ inicializa grafo
 seta posição inicial na fila (coloca os valores certos nos atributos na posição inicial do grafo)
 BFS(dequeue())
 """
-def preparacaoBFS():
-    fila.put(inicial) # @FRONT -> mudar a cor para posição inicial
-    grafo.setPosicaoAnterior(inicial, 0)
-    BFS(fila.get())
+def preparacaoBFS(ini,fim,grid):
+    fila = queue.Queue()
+    fila.put(ini) # @FRONT -> mudar a cor para posição inicial
+    grafo.setPosicaoAnterior(ini, 0)
+    BFS(fila.get(),ini,fim,grid)
 
 """
 noAtual = matriz[posAtual[0],posAtual[1]]
@@ -36,55 +38,41 @@ Insere as posições adjacentes na fila (N,L,S,O)
 BFS(fila.get(),noAtual)
 retorna
 """
-def BFS(posAtual):
+def BFS(posAtual,ini,fim,grid):
     if posAtual == queue.Empty:
         return
     grafo.setCustoTotal(posAtual, grafo.getCustoTotal(grafo.getPosicaoAnterior(posAtual)) + grafo.getCusto(posAtual))
-    if posAtual == final:
+    if posAtual == fim:
         print("Caminho encontrado (destino->início):")
         #print(grafo.__dict__)
-        exibeCaminho(posAtual)
+        exibeCaminho(posAtual,grid)
         print("\nCusto total:", grafo.getCustoTotal(posAtual))
         return
     for vertice in grafo.getArestas(posAtual):
+        if posAtual != ini:
+            aux1 = posAtual[0]
+            aux2 = posAtual[1]
+            grid[aux1][aux2].make_closed()
         if grafo.getPosicaoAnterior(vertice) == None:
             grafo.setPosicaoAnterior(vertice, posAtual)
             fila.put(vertice)
-    BFS(fila.get(block=False))
+    BFS(fila.get(block=False),ini,fim,grid)
     #return
 
 # @FRONT
 # Função que exibe o caminho encontrado
-def exibeCaminho(posicao):
+def exibeCaminho(posicao,grid):
     if posicao == 0:
         return
-    print(posicao, end="")
+
+    aux1 = posAtual[0]
+    aux2 = posAtual[1]
+    grid[aux1][aux2].make_path()
+    ##print(posicao, end="")
     ##caminho.append(posicao)
     # Muda a cor da célula, exibindo o caminho
     # Recursão chamando noAnterior
-    exibeCaminho(grafo.getPosicaoAnterior(posicao))
+
+    exibeCaminho(grafo.getPosicaoAnterior(posicao),grid)
 
 # MAIN
-path = OpenFile()
-if path != '':
-    #print("path: \n", path)
-    matriz = pd.read_csv(path, header = None).fillna(-1).to_numpy(dtype=int)
-    inicial = [matriz[0][0], matriz[0][1]]
-    final = [matriz[1][0], matriz[1][1]]
-    mapa = np.delete(matriz,[0,1],0)
-    rows, columns = mapa.shape
-    if CoordTest(inicial, rows, columns) == True and CoordTest(final,rows,columns) == True and MapCheck(mapa) == True and inicial != final:
-        #print("\npos inicial:\n ", inicial)
-        #print("\npos final:\n ", final)
-        #print("\nmapa:\n ", mapa)
-        fila = queue.Queue() # Fila para BFS
-        #print(mapa,"\n\n", inicial, final)
-        grafo = Graph(mapa, mapa.shape) # Grafo modelo matriz de adjacência
-        #print(grafo.__dict__)
-        preparacaoBFS()
-        ##caminho.reverse()
-        ##for passo in caminho:
-        ##    print(passo, end="")
-        #print(grafo.vertices[100].getPosicao())
-        #print(mapa.shape)
-        #print(grafo.getCusto(inicial))

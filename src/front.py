@@ -1,8 +1,10 @@
 from file import *
 from grafo import *
+import queue
 import pandas as pd
 import numpy as np
 import pygame
+np.set_printoptions(threshold=np.inf)
 import math
 WIDTH = 600
 HEIGTH = 600
@@ -19,6 +21,7 @@ PURPLE = (128, 0, 128) #caminho mais curto
 ORANGE = (255, 165 ,0) #começo
 TURQUOISE = (64, 224, 208) #fim
 
+# Posição dentro da matriz do front-end
 class Spot:
     def __init__(self, width, height, total_rows,total_cols,pos,arestas,custo):
         self.row = pos[1] #ver como esta sendo tratado para mandar uma lista com x y
@@ -31,7 +34,7 @@ class Spot:
         self.total_rows = total_rows
         self.heigth = height
         self.pos = pos #lista com x e y
-
+        # Atribui as cores para cada posição considerando o custo de cada uma
         if custo == 1:
             self.custo = custo
             self.color = GREEN
@@ -47,7 +50,6 @@ class Spot:
         self.arestas = arestas #lista de vizinhos
         self.posicaoAnterior = None
         self.custoTotal = None
-
 
     def setCustoTotal(self, custo):
         self.custoTotal = custo
@@ -97,17 +99,77 @@ class Spot:
     def getPosicaoAnterior(self):
         return self.posicaoAnterior
 
-
+    # Se a posição não existir
     def __lt__(self, other):
         return False
+
+
+class Graph(object):
+    def __init__(self, matriz, shape):
+        self.vertices = [] # define uma lista de vértices
+        self.linha = matriz.shape[0] # tamanho da linha
+        self.coluna = matriz.shape[1] # tamanho da coluna
+        # define as dimensões da tela do mapa
+        gapw = 600 //  self.linha
+        gaph = 600 //  self.coluna
+        for i in range(shape[0]):
+            for j in range(shape[1]):
+                arestas = [] # define uma lista de posições adjacentes
+                if i-1 >= 0:
+                    arestas.append([i-1, j]) # Norte
+                if j+1 <= range(shape[1])[-1]:
+                    arestas.append([i, j+1]) # Leste
+                if i+1 <= range(shape[0])[-1]:
+                    arestas.append([i+1, j]) # Sul
+                if j-1 >= 0:
+                    arestas.append([i, j-1]) # Oeste
+                self.vertices.append(Vertice([i,j],arestas,matriz[i][j]))
+
+    def getVertices(self):
+        return self.vertices
+
+    # retorna a representação do grafo em string
+    def __repr__(self):
+        return str(self)
+
+    def setCustoTotal(self, posicao, custo):
+        self.vertices[posicao[0] * self.coluna + posicao[1]].setCustoTotal(custo)
+
+    def setPosicaoAnterior(self, posicao, anterior):
+        self.vertices[posicao[0] * self.coluna + posicao[1]].setPosicaoAnterior(anterior)
+
+    def getArestas(self, posicao):
+        return self.vertices[posicao[0] * self.coluna + posicao[1]].getArestas()
+
+    def getCustoTotal(self, posicao):
+        if posicao == 0:
+            return 0
+        return self.vertices[posicao[0] * self.coluna + posicao[1]].getCustoTotal()
+
+    def getCusto(self, posicao):
+        return self.vertices[posicao[0] * self.coluna + posicao[1]].getCusto()
+
+    def getPosicaoAnterior(self, posicao):
+        if posicao == 0:
+            return 0
+        return self.vertices[posicao[0] * self.coluna + posicao[1]].getPosicaoAnterior()
+
+#mat = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
+#mat.shape
+
+#grafo = Graph(mapa, mapa.shape)
+
+#print(grafo.__dict__)
+#print(grafo.getVertices())
+
 
 #Faz os quadrados
 def make_grid(rows,cols, width, height,matriz): #fazer receber a matriz para passar o valor, mandar o valor pro spot e la define a cor
     grid = []
-    gapw = width // cols
-    gaph = height //  rows    
+    gapw = width // cols # tamanho das colunas
+    gaph = height //  rows # tamanho das linhas
     for i in range(rows):
-        grid.append([])
+        grid.append([]) # posições adjacentes
         for j in range(cols):
             arestas = []
             if i-1 >= 0:
@@ -119,8 +181,10 @@ def make_grid(rows,cols, width, height,matriz): #fazer receber a matriz para pas
             if j-1 >= 0:
                 arestas.append([i, j-1]) # Oeste
             spot = Spot(gaph , gapw, rows, cols,[i,j],arestas,matriz[i][j])
-            grid[i].append(spot)
+            grid[i].append(spot) 
     return grid
+
+
 #desenha o contorno dos quadrados
 def draw_grid(win, rows,cols , width):
     gap = width // rows
@@ -130,55 +194,99 @@ def draw_grid(win, rows,cols , width):
         for j in range(cols):
             pygame.draw.line(win, GREY, (j * gap2, 0), (j * gap2, width))
 
+# loop para o desenho das posições
 def draw(win, grid, rows,cols, width):
     #win.fill(RED)
 
     for row in grid:
         for spot in row:
             spot.draw(win)
-
+    # desenha as posições na tela
     draw_grid(win, rows,cols, width)
     pygame.display.update()
 
-def main(win, width,height):
+def BFS(posAtual,ini,fim,grid):
+    # verifica se a fila é vazia
+    if posAtual == queue.Empty:
+        return
+    # calcula o custo total na posição
+    grafo.setCustoTotal(posAtual, grafo.getCustoTotal(grafo.getPosicaoAnterior(posAtual)) + grafo.getCusto(posAtual))
+    # Verifica se chegou no destino
+    if posAtual == fim:
+        print("Caminho encontrado (destino->início):")
+        #print(grafo.__dict__)
+        # Exibe o caminho encontrado
+        exibeCaminho(posAtual,grid)
+        print("\nCusto total:", grafo.getCustoTotal(posAtual))
+        return
+    # 
+    for vertice in grafo.getArestas(posAtual):
+        # muda a cor da posição desconsiderando a posição inicial
+        if posAtual != ini:
+            aux1 = posAtual[0]
+            aux2 = posAtual[1]
+            grid[aux1][aux2].make_closed() # posição que foi visitada
+        if grafo.getPosicaoAnterior(vertice) == None:
+            grafo.setPosicaoAnterior(vertice, posAtual)
+            fila.put(vertice)
+    BFS(fila.get(block=False),ini,fim,grid)
 
-    path = OpenFile()
-    if path != '':
-        #print("path: \n", path)
-        matriz = pd.read_csv(path, header = None).fillna(-1).to_numpy(dtype=int)
-        aux1 = matriz[0][0]
-        aux2 = matriz[0][1]
-        aux3 = matriz[1][0]
-        aux4 = matriz[1][1]
-        mapa = np.delete(matriz,[0,1],0)
-        ROWS, COLS = mapa.shape
-        grid = make_grid(ROWS, COLS, width, height, mapa)
-        start = grid[aux1][aux2]
-        end = grid[aux3][aux4]
+def preparacaoBFS(ini,fim,grid):
+    fila.put(ini) # @FRONT -> mudar a cor para posição inicial
+    grafo.setPosicaoAnterior(ini, 0)
+    BFS(fila.get(),ini,fim,grid)
+
+def exibeCaminho(posicao,grid):
+    if posicao == 0:
+        return
+
+    aux1 = posicao[0]
+    aux2 = posicao[1]
+    grid[aux1][aux2].make_path()
+    ##print(posicao, end="")
+    ##caminho.append(posicao)
+    # Muda a cor da célula, exibindo o caminho
+    # Recursão chamando noAnterior
+
+    exibeCaminho(grafo.getPosicaoAnterior(posicao),grid)
 
 
 
+path = OpenFile()
+if path != '':
+    #print("path: \n", path)
+    matriz = pd.read_csv(path, header = None).fillna(-1).to_numpy(dtype=int)
+    aux1 = matriz[0][0]
+    aux2 = matriz[0][1]
+    aux3 = matriz[1][0]
+    aux4 = matriz[1][1]
+    ini =[aux1,aux2]
+    fin = [aux3,aux4]
+    mapa = np.delete(matriz,[0,1],0)
+    ROWS, COLS = mapa.shape
+    grid = make_grid(ROWS, COLS, WIDTH, HEIGTH, mapa)
+    start = grid[aux1][aux2]
+    end = grid[aux3][aux4]        
+    if CoordTest(ini, ROWS, COLS) == True and CoordTest(fin,ROWS,COLS) == True and MapCheck(mapa) == True and ini != fin:            
+        fila = queue.Queue()
+        grafo = Graph(mapa, mapa.shape)
+        #start = grid[0][0] #colocar o que jao pegou
+        start.make_start()
+        #end = grid[0][1] #colocar o que jao pegou
+        end.make_end()
+        run = True
+        while run:
+            draw(WIN, grid, ROWS, COLS, WIDTH)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE and start and end:
+                        preparacaoBFS(ini,fin,grid)
+                    if event.key == pygame.K_c:
+                        start = None
+                        end = None
+                        grid = make_grid(ROWS, COLS, WIDTH, HEIGTH,matriz)
+        pygame.quit()
 
-    #start = grid[0][0] #colocar o que jao pegou
-    start.make_start()
-    #end = grid[0][1] #colocar o que jao pegou
-    end.make_end()
-    run = True
-    while run:
-        draw(win, grid, ROWS, COLS, width)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and start and end:
-                    algoritmo
-
-                if event.key == pygame.K_c:
-                    start = None
-                    end = None
-                    grid = make_grid(ROWS, COLS, width, height,matriz)
-
-    pygame.quit()
-
-main(WIN, WIDTH, HEIGTH)
