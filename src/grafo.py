@@ -1,5 +1,6 @@
 #from file import mapa
 #import numpy as np
+from front import *
 import subprocess as sp
 import sys
 
@@ -9,7 +10,7 @@ import sys
 
 class Vertice(object):
     def __init__(self, pos, arestas, custo):
-        self.pos = pos
+        self.pos = pos #lista com x e y
         if custo == 1:
             self.custo = custo
         elif custo == 2:
@@ -18,7 +19,7 @@ class Vertice(object):
             self.custo = 10
         elif custo == 4:
             self.custo = 15
-        self.arestas = arestas
+        self.arestas = arestas #lista de vizinhos
         self.posicaoAnterior = None
         self.custoTotal = None
 
@@ -53,7 +54,10 @@ class Vertice(object):
 class Graph(object):
     def __init__(self, matriz, shape):
         self.vertices = []
+        self.linha = matriz.shape[0]
         self.coluna = matriz.shape[1]
+        gapw = 600 //  self.linha
+        gaph = 600 //  self.coluna
         for i in range(shape[0]):
             for j in range(shape[1]):
                 arestas = []
@@ -65,7 +69,7 @@ class Graph(object):
                     arestas.append([i+1, j]) # Sul
                 if j-1 >= 0:
                     arestas.append([i, j-1]) # Oeste
-                self.vertices.append(Vertice([i, j], arestas, matriz[i][j]))
+                self.vertices.append(Spot(gaph , gapw, self.linha, self.coluna,[i,j],arestas,matriz[i][j]))
 
     def getVertices(self):
         return self.vertices

@@ -1,5 +1,6 @@
 from file import *
 from grafo import *
+from front import *
 import queue
 import pandas as pd
 import numpy as np
