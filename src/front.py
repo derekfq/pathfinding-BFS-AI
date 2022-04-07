@@ -5,7 +5,6 @@ import pandas as pd
 import numpy as np
 import pygame
 np.set_printoptions(threshold=np.inf)
-import math
 WIDTH = 600
 HEIGTH = 600
 WIN = pygame.display.set_mode((WIDTH, HEIGTH))
@@ -15,7 +14,7 @@ RED = (255, 0, 0) #fogo
 GREEN = (0, 255, 0) #Sólido e plano
 BLUE = (0, 0, 255) #Pantano
 BROWM =(165, 42, 42) #Montanhoso
-GREY = (128, 128, 128) #PRA DESENHAR OS QUADRADOS
+GREY = (128, 128, 128) #PARA DESENHAR OS QUADRADOS
 YELLOW = (255, 255, 0) #visitado
 PURPLE = (128, 0, 128) #caminho mais curto
 ORANGE = (255, 165 ,0) #começo
@@ -26,7 +25,7 @@ PINK = (255, 203, 219) #fila
 # Posição dentro da matriz do front-end
 class Spot:
     def __init__(self, width, height, total_rows,total_cols,pos,arestas,custo):
-        self.row = pos[1] #ver como esta sendo tratado para mandar uma lista com x y
+        self.row = pos[1] # Coordenadas
         self.col = pos[0]
         self.x = self.row * width
         self.y = self.col * height
@@ -111,15 +110,12 @@ class Spot:
     def __lt__(self, other):
         return False
 
-
+# Estrutura do grafo
 class Graph(object):
     def __init__(self, matriz, shape):
         self.vertices = [] # define uma lista de vértices
         self.linha = matriz.shape[0] # tamanho da linha
         self.coluna = matriz.shape[1] # tamanho da coluna
-        # define as dimensões da tela do mapa
-        gapw = 600 //  self.linha
-        gaph = 600 //  self.coluna
         for i in range(shape[0]):
             for j in range(shape[1]):
                 arestas = [] # define uma lista de posições adjacentes
@@ -162,15 +158,6 @@ class Graph(object):
             return 0
         return self.vertices[posicao[0] * self.coluna + posicao[1]].getPosicaoAnterior()
 
-#mat = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
-#mat.shape
-
-#grafo = Graph(mapa, mapa.shape)
-
-#print(grafo.__dict__)
-#print(grafo.getVertices())
-
-
 #Faz os quadrados
 def make_grid(rows,cols, width, height,matriz): #fazer receber a matriz para passar o valor, mandar o valor pro spot e la define a cor
     grid = []
@@ -189,7 +176,7 @@ def make_grid(rows,cols, width, height,matriz): #fazer receber a matriz para pas
             if j-1 >= 0:
                 arestas.append([i, j-1]) # Oeste
             spot = Spot(gaph , gapw, rows, cols,[i,j],arestas,matriz[i][j])
-            grid[i].append(spot) 
+            grid[i].append(spot)
     return grid
 
 
@@ -204,8 +191,6 @@ def draw_grid(win, rows,cols , width):
 
 # loop para o desenho das posições
 def draw(win, grid, rows,cols, width):
-    #win.fill(RED)
-
     for row in grid:
         for spot in row:
             spot.draw(win)
@@ -213,53 +198,63 @@ def draw(win, grid, rows,cols, width):
     draw_grid(win, rows,cols, width)
     pygame.display.update()
 
-def BFS(posAtual,ini,fim,grid):
+def BFS(ini,fim,grid):
+    fila.put(ini) #Coloca dentro da fila a posição inicial
+    grafo.setPosicaoAnterior(ini, 0) # coloca a posição anterior como 0, identificando que é a posição inicial
+    posAtual = fila.get() # inicia a busca em largura
     # verifica se a fila é vazia
     if posAtual == queue.Empty:
         return
-    # calcula o custo total na posição
-    grafo.setCustoTotal(posAtual, grafo.getCustoTotal(grafo.getPosicaoAnterior(posAtual)) + grafo.getCusto(posAtual))
-    # Verifica se chegou no destino
-    if posAtual == fim:
-        print("Caminho encontrado (destino->início):")
-        #print(grafo.__dict__)
-        # Exibe o caminho encontrado
-        exibeCaminho(posAtual,grid)
-        print("\nCusto total:", grafo.getCustoTotal(posAtual))
-        return
-    # 
-    for vertice in grafo.getArestas(posAtual):
-        # muda a cor da posição desconsiderando a posição inicial
-        if posAtual != ini:
-            aux1 = posAtual[0]
-            aux2 = posAtual[1]
-            grid[aux1][aux2].make_closed() # posição que foi visitada
-        if grafo.getPosicaoAnterior(vertice) == None:
-            grafo.setPosicaoAnterior(vertice, posAtual)
-            aux3 = vertice[0]
-            aux4 = vertice[1]
-            grid[aux3][aux4].make_fila()
-            fila.put(vertice)
-    BFS(fila.get(block=False),ini,fim,grid)
-
+    while True:
+        # calcula o custo total na posição
+        grafo.setCustoTotal(posAtual, grafo.getCustoTotal(grafo.getPosicaoAnterior(posAtual)) + grafo.getCusto(posAtual))
+        # Verifica se chegou no destino
+        if posAtual == fim:
+            #print("Caminho encontrado (destino->início):")
+            #print(grafo.__dict__)
+            # Exibe o caminho encontrado
+            exibeCaminho(posAtual,grid)
+            print("\nCusto total:", grafo.getCustoTotal(posAtual))
+            return
+        # Verifica as posições adjacentes
+        for vertice in grafo.getArestas(posAtual):
+            pygame.time.wait(10)
+            draw(WIN, grid, ROWS, COLS, WIDTH) # Atualiza a visualização do grafo
+            # muda a cor da posição desconsiderando a posição inicial
+            if posAtual != ini:
+                aux1 = posAtual[0]
+                aux2 = posAtual[1]
+                grid[aux1][aux2].make_closed() # posição que foi visitada
+            if grafo.getPosicaoAnterior(vertice) == None: # posição ainda não visitada e nem presente na fila
+                grafo.setPosicaoAnterior(vertice, posAtual) # atribui a posição anterior antes de inserir na fila, indicando que a posição já estará na fila
+                aux3 = vertice[0]
+                aux4 = vertice[1]
+                if vertice != fim: # Para não colorir o vértice de destino
+                    grid[aux3][aux4].make_fila()
+                fila.put(vertice)
+        posAtual = fila.get(block=False)
+    #BFS(fila.get(block=False),ini,fim,grid)
+"""
 def preparacaoBFS(ini,fim,grid):
     fila.put(ini) #Coloca dentro da fila a posição inicial
     grafo.setPosicaoAnterior(ini, 0) # coloca a posição anterior como 0, identificando que é a posição inicial
     BFS(fila.get(),ini,fim,grid) # inicia a busca em largura
-
+"""
 def exibeCaminho(posicao,grid):
     if posicao == 0:
         return
-
-    aux1 = posicao[0]
-    aux2 = posicao[1]
-    grid[aux1][aux2].make_path() # exibe o caminho no front
-    ##print(posicao, end="")
-    ##caminho.append(posicao)
-    # Muda a cor da célula, exibindo o caminho
-    # Recursão chamando noAnterior
-
-    exibeCaminho(grafo.getPosicaoAnterior(posicao),grid)
+    while posicao != 0:
+        aux1 = posicao[0]
+        aux2 = posicao[1]
+        grid[aux1][aux2].make_path() # exibe o caminho no front
+        ##print(posicao, end="")
+        ##caminho.append(posicao)
+        # Muda a cor da célula, exibindo o caminho
+        # Recursão chamando noAnterior
+        pygame.time.wait(100)
+        draw(WIN, grid, ROWS, COLS, WIDTH)
+        posicao = grafo.getPosicaoAnterior(posicao)
+    #exibeCaminho(grafo.getPosicaoAnterior(posicao),grid)
 
 # MAIN
 path = OpenFile()
@@ -270,28 +265,29 @@ if path != '':
     aux2 = matriz[0][1]
     aux3 = matriz[1][0]
     aux4 = matriz[1][1]
-    ini =[aux1,aux2]
-    fin = [aux3,aux4]
+    ini = [aux1,aux2] # Posição inicial
+    fim = [aux3,aux4] # posição final
     mapa = np.delete(matriz,[0,1],0)
-    ROWS, COLS = mapa.shape
+    ROWS, COLS = mapa.shape # Recolhe as dimensões da matriz
     grid = make_grid(ROWS, COLS, WIDTH, HEIGTH, mapa)
     start = grid[aux1][aux2]
     end = grid[aux3][aux4]
     # verifica se a matriz contém uma posição final, inicial, e se a matriz não contém uma posição que está faltando
-    if CoordTest(ini, ROWS, COLS) == True and CoordTest(fin,ROWS,COLS) == True and MapCheck(mapa) == True and ini != fin:            
+    if CoordTest(ini, ROWS, COLS) == True and CoordTest(fim,ROWS,COLS) == True and MapCheck(mapa) == True and ini != fim:
         fila = queue.Queue()
         grafo = Graph(mapa, mapa.shape)
-        start.make_start()
-        end.make_end()
+        start.make_start() # colore a posição inicial
+        end.make_end() # colore a posição de destino
         run = True
         while run:
             draw(WIN, grid, ROWS, COLS, WIDTH)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE and start and end:
-                        preparacaoBFS(ini,fin,grid)
+                # Pressione enter para iniciar o algoritmo
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and start and end:
+                    BFS(ini,fim,grid)
+                    #preparacaoBFS(ini,fim,grid)
         pygame.quit()
 
 

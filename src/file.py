@@ -1,7 +1,7 @@
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 
-def OpenFile():
+def OpenFile(): # Abre a interface para selecionar um arquivo CSV
     ftypes = [('Arquivo CSV','*.csv')]
     Tk().withdraw()
     return askopenfilename(filetypes=ftypes)

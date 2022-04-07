@@ -1,12 +1,3 @@
-#from file import mapa
-#import numpy as np
-import subprocess as sp
-import sys
-
-#!pip install graphlib
-#def install(graphlib):
-#    sp.check_call([sys.executable, "-m", "pip", "install", graphlib])
-
 class Vertice(object):
     def __init__(self, pos, arestas, custo):
         self.pos = pos #lista com x e y
@@ -19,8 +10,8 @@ class Vertice(object):
         elif custo == 4:
             self.custo = 15
         self.arestas = arestas #lista de vizinhos
-        self.posicaoAnterior = None
-        self.custoTotal = None
+        self.posicaoAnterior = None # Posição anterior para denotar o caminho e demarcar se o nó está presente na fila
+        self.custoTotal = None # Denota o custo total até o momento no presente nó, denota também se o nó já foi visitado
 
     def setCustoTotal(self, custo):
         self.custoTotal = custo
